@@ -1,0 +1,5 @@
+This module combines data from [[Module:languages/data/all]], [[Module:etymology languages/data]] and [[Module:families/data]] into a single table. It should only be used in Lua functions that need to look at the data for all languages, etymology-only languages and families, such as {{code|lua|fetch_descendants}} in [[Module:languages]]. It should not be used in entries, because its memory footprint is huge.
+
+<includeonly>
+[[Category:Data modules]]
+</includeonly>
