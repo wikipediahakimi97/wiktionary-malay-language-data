@@ -1,0 +1,49 @@
+name: Download and localize language modules
+
+on:
+  workflow_dispatch:
+    inputs:
+      ms_before:
+        description: 'First run only: Malay revision cutoff in UTC; blank = current'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiktionary-language-localizer
+  cancel-in-progress: false
+
+jobs:
+  localize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download and generate localized files
+        env:
+          MS_BEFORE: ${{ inputs.ms_before }}
+        run: python scripts/sync_modules.py --ms-before "$MS_BEFORE"
+
+      - name: Show summary
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit snapshots, results and report
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sources localized reports
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Refresh Wiktionary modules and transfer Malay canonical names'
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
