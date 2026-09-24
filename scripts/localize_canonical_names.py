@@ -94,12 +94,17 @@ def _record_occurrences(source):
     return items, occurrences
 
 
+def record_codes(source):
+    """Return codes for every top-level record occurrence, including duplicates."""
+    _items, occurrences = _record_occurrences(source)
+    return [code for code, _start, _opening, _closing in occurrences]
+
+
 def records(source):
     """Return top-level m["code"] = { ... } record token ranges.
 
-    Input passed to this parser must already be duplicate-free. Repeated code
-    assignments are rejected so English source data is never silently resolved
-    or discarded during localization.
+    This strict helper is used for data that must already be duplicate-free,
+    such as the cleaned Malay baseline and the standalone single-file utility.
     """
     items, occurrences = _record_occurrences(source)
     found = {}
@@ -144,21 +149,112 @@ def subsequent_duplicate_records(source, seen=None):
         duplicates.append(dict(code=code, start=start, end=end))
     return duplicates
 
+def _canonical_token(items, code, opening, closing):
+    first = opening + 1
+    if first >= closing:
+        raise ValueError('Empty data record has no canonical name: ' + repr(code))
+    name_token = items[first]
+    if (name_token[0] != 'string' or first + 1 >= len(items)
+            or items[first + 1][1] != b','):
+        raise ValueError('First field is not a single quoted name: ' + repr(code))
+    return name_token
+
+
+def canonical_name_occurrences(source):
+    """Return every ``(code, canonical-name token)`` occurrence in source.
+
+    Unlike :func:`canonical_names`, this intentionally preserves duplicate
+    English assignments so callers can localize all of them while reporting a
+    warning instead of deleting or rejecting the source records.
+    """
+    items, occurrences = _record_occurrences(source)
+    result = []
+    for code, _start, opening, closing in occurrences:
+        result.append((code, _canonical_token(items, code, opening, closing)))
+    if not result:
+        raise ValueError('No m["code"] = { "name", ... } entries found')
+    return result
+
+
 def canonical_names(source):
     """Return code -> canonical-name token for duplicate-free records."""
     items, found = records(source)
     result = {}
     for code, (_, opening, closing) in found.items():
-        first = opening + 1
-        if first >= closing:
-            raise ValueError('Empty data record has no canonical name: ' + repr(code))
-        name_token = items[first]
-        if name_token[0] != 'string' or first + 1 >= len(items) or items[first + 1][1] != b',':
-            raise ValueError('First field is not a single quoted name: ' + repr(code))
-        result[code] = name_token
+        result[code] = _canonical_token(items, code, opening, closing)
     if not result:
         raise ValueError('No m["code"] = { "name", ... } entries found')
     return result
+
+
+def _alias_tokens_for_record(items, code, opening, closing):
+    alias_tokens = []
+    depth = 0
+    i = opening + 1
+    while i < closing:
+        value = items[i][1]
+        if value == b'{':
+            depth += 1
+            i += 1
+            continue
+        if value == b'}':
+            depth -= 1
+            i += 1
+            continue
+        if depth == 0 and value == b'aliases':
+            if (i + 2 >= closing or items[i+1][1] != b'='
+                    or items[i+2][1] != b'{'):
+                raise ValueError('aliases is not a literal table for code: ' + repr(code))
+            alias_depth = 1
+            j = i + 3
+            while j < closing and alias_depth:
+                token = items[j]
+                if token[1] == b'{':
+                    alias_depth += 1
+                elif token[1] == b'}':
+                    alias_depth -= 1
+                elif alias_depth == 1 and token[0] == 'string':
+                    alias_tokens.append(token)
+                j += 1
+            if alias_depth:
+                raise ValueError('Unclosed aliases table for code: ' + repr(code))
+            i = j
+            continue
+        i += 1
+    return alias_tokens
+
+
+def alias_occurrence_details(source):
+    """Return alias records with an optional same-record canonical token.
+
+    In etymology-language and family modules, aliases live in the same record
+    as the canonical name, so callers can use that exact English canonical
+    literal even when the code is duplicated. Language /extra records usually
+    do not carry a canonical first field, in which case ``canonical_token`` is
+    ``None``.
+    """
+    items, occurrences = _record_occurrences(source)
+    result = []
+    for code, _start, opening, closing in occurrences:
+        alias_tokens = _alias_tokens_for_record(items, code, opening, closing)
+        if not alias_tokens:
+            continue
+        first = opening + 1
+        canonical_token = None
+        if (first < closing and items[first][0] == 'string'
+                and first + 1 < len(items) and items[first + 1][1] == b','):
+            canonical_token = items[first]
+        result.append((code, canonical_token, alias_tokens))
+    return result
+
+
+def alias_occurrences(source):
+    """Return ``(code, alias tokens)`` for every record occurrence with aliases."""
+    return [
+        (code, alias_tokens)
+        for code, _canonical_token_value, alias_tokens
+        in alias_occurrence_details(source)
+    ]
 
 
 def aliases(source):
@@ -166,38 +262,7 @@ def aliases(source):
     items, found = records(source)
     result = {}
     for code, (_, opening, closing) in found.items():
-        alias_tokens = []
-        depth = 0
-        i = opening + 1
-        while i < closing:
-            value = items[i][1]
-            if value == b'{':
-                depth += 1
-                i += 1
-                continue
-            if value == b'}':
-                depth -= 1
-                i += 1
-                continue
-            if depth == 0 and value == b'aliases':
-                if i + 2 >= closing or items[i+1][1] != b'=' or items[i+2][1] != b'{':
-                    raise ValueError('aliases is not a literal table for code: ' + repr(code))
-                alias_depth = 1
-                j = i + 3
-                while j < closing and alias_depth:
-                    token = items[j]
-                    if token[1] == b'{':
-                        alias_depth += 1
-                    elif token[1] == b'}':
-                        alias_depth -= 1
-                    elif alias_depth == 1 and token[0] == 'string':
-                        alias_tokens.append(token)
-                    j += 1
-                if alias_depth:
-                    raise ValueError('Unclosed aliases table for code: ' + repr(code))
-                i = j
-                continue
-            i += 1
+        alias_tokens = _alias_tokens_for_record(items, code, opening, closing)
         if alias_tokens:
             result[code] = alias_tokens
     return result
