@@ -1,0 +1,27 @@
+{{language data search}}
+This module is an ancillary data module used by all the submodules that define the properties of individual languages. See [[Wiktionary:Languages]] for more information.
+
+For the languages and language varieties that may be used in etymologies, see [[Module:etymology languages]]. For language families, which sometimes also appear in etymologies, see [[Module:families]].
+
+The information itself is stored in the various data modules that are subpages of this module. These modules should '''not''' be used directly by any other module, the data should only be accessed through the functions provided by this module.
+
+Data submodules:
+* [[Module:languages/data/2|Two-letter codes]]
+* Three-letter codes by their first letter: {{#invoke:string/templates|gsub|abcdefghijklmnopqrstuvwxyz|%a|<nowiki /> [[Module:languages/data/3/%1|&nbsp;%1&nbsp;]]}}
+* [[Module:languages/data/exceptional|Longer codes containing hyphens (<code>-</code>)]]
+
+Extra data submodules (for less frequently used data):
+* [[Module:languages/data/2/extra|Two-letter codes]]
+* Three-letter codes by their first letter: {{#invoke:string/templates|gsub|abcdefghijklmnopqrstuvwxyz|%a|<nowiki /> [[Module:languages/data/3/%1/extra|&nbsp;%1&nbsp;]]}}
+* [[Module:languages/data/exceptional/extra|Longer codes containing hyphens (<code>-</code>)]]
+
+==Errors==
+{{language data consistency check}}
+
+==Exported data==
+The module exports a number of data structures for use in defining the properties of languages.
+
+{{module documentation}}
+<includeonly>
+{{module cat|-|Language and script}}
+</includeonly>

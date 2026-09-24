@@ -1,0 +1,12 @@
+This module combines data from the [[:Category:Language data modules|language data modules]] into a single table. It should only be used in Lua modules that need to look at the data for all languages, such as [[Wiktionary:List of languages]]. It should not be used in entries, because its memory footprint is huge.
+
+See [[Wiktionary:Grease pit/2013/November#Module:languages]].
+
+===See also===
+* [[Module:languages/data/all/additional]]
+
+<includeonly>
+[[Category:Language data modules|all]]
+
+[[af:Module:Tale/alle data]]
+</includeonly>
