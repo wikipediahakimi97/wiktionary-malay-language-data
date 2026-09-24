@@ -202,6 +202,8 @@ Both source folders contain `manifest.json` with source revision information. Th
 
 `reports/changes.json` contains:
 
+English duplicate warnings are also shown in `reports/summary.md`, including the duplicated code and the files where it first appeared and repeated.
+
 | Field | Meaning |
 | --- | --- |
 | `changed_count` | Total canonical-name replacements. |
@@ -210,17 +212,27 @@ Both source folders contain `manifest.json` with source revision information. Th
 | `changes` | Canonical-name changes, including data set and source files. |
 | `alias_collision_replacements` | Alias replacements, including data set, code, old alias and replacement alias. |
 | `malay_duplicate_removals` | Subsequent duplicate Malay assignments removed during preprocessing, including data set, code and file. |
+| `english_duplicate_warning_count` | Number of later English duplicate occurrences detected. These are warnings, not fatal errors. |
+| `english_duplicate_warnings` | Duplicate English codes with their data set, first file, and repeated file/occurrence. |
 | `new_codes_without_malay_name` | Current English codes with no matching Malay baseline canonical name. |
 | `old_codes_absent_from_english` | Saved Malay codes no longer found in the corresponding current English data set. |
 | `duplicate_canonical_names` | Duplicate localized canonical names, reported separately for each data set. |
 
-The `dataset` value is one of:
+Canonical-name and alias-change records use these main data-set values:
 
 ```text
 languages
 etymology_languages
 families
 ```
+
+Duplicate cleanup/warning records can also use:
+
+```text
+language_extras
+```
+
+because canonical language modules and their `/extra` modules are checked as separate duplicate groups.
 
 ## What is preserved
 
@@ -245,7 +257,11 @@ aliases = {"Name 1", "Name 2"},
 
 The workflow validates the resulting canonical names and alias replacements after editing.
 
-### Malay duplicate cleanup
+### Duplicate handling
+
+Malay and English duplicates are handled differently.
+
+#### Malay duplicates
 
 After the Malay and English source data are available, the workflow preprocesses the **Malay** baseline before building any canonical-name maps.
 
@@ -284,7 +300,20 @@ m["tly-cen"] = {
 
 The cleaned `sources/ms-old/` baseline is then used for canonical-name localization.
 
-English data is **not** cleaned this way. `sources/en-new/` remains the untouched downloaded English snapshot. If a duplicate code is unexpectedly found in a supported English data group, the workflow stops with an error instead of deleting an English record.
+#### English duplicates
+
+English data is **not** cleaned or deleted. `sources/en-new/` remains the untouched downloaded English snapshot.
+
+If a duplicate English code is found, the workflow:
+
+1. keeps all English occurrences;
+2. emits a GitHub Actions warning;
+3. records the duplicate code and its file locations in the reports;
+4. continues localization instead of failing.
+
+All English canonical-name occurrences for the duplicated code are localized when a matching Malay canonical name exists. Alias-collision repair is also applied to every duplicate alias record.
+
+For etymology-language and family records, where aliases and the canonical name are stored together, each duplicate record uses **its own original English canonical name** when a conflicting alias must be replaced. For language `/extra` records, the first English canonical occurrence for that code is used as the code-level English canonical reference.
 
 ## Re-running the workflow
 
@@ -297,11 +326,12 @@ The workflow:
 3. scans supported Malay language, language-extra, etymology-language, and family data for duplicate codes;
 4. keeps the first Malay occurrence and deletes every subsequent duplicate;
 5. builds three separate Malay canonical-name maps;
-6. replaces matching English canonical names in all three data sets;
-7. repairs newly created alias/canonical-name collisions;
-8. validates the generated output;
-9. regenerates `localized/` and `reports/`;
-10. stores the cleaned Malay baseline and commits the results to the selected branch.
+6. scans English data for duplicate codes and records warning-only findings without deleting them;
+7. replaces matching English canonical names in all three data sets, including every duplicate English occurrence;
+8. repairs newly created alias/canonical-name collisions;
+9. validates the generated output;
+10. regenerates `localized/` and `reports/`;
+11. stores the cleaned Malay baseline and commits the results to the selected branch.
 
 Manual changes inside these generated folders may be overwritten:
 
@@ -387,7 +417,7 @@ This repository does not automatically edit Wiktionary or regenerate on-wiki ind
 | Baseline is missing the new data sets | The updated script should backfill them at the baseline's stored cutoff automatically. |
 | Backfill has no eligible historical revision | The required module did not have a revision at or before the stored cutoff; investigate the appropriate historical baseline. |
 | Incomplete canonical data snapshot | A required definition module is missing or has no eligible revision. |
-| Duplicate-code error | Malay duplicates should be removed automatically by keeping the first occurrence. An unexpected duplicate in supported English data is treated as an error and is not deleted automatically. Codes may still overlap between different data sets because those maps are intentionally separate. |
+| Duplicate-code warning | Malay duplicates are cleaned automatically by keeping the first occurrence. English duplicates are preserved, reported as warnings in the Actions log and reports, and do not stop localization. Codes may also overlap between different data sets because those maps are intentionally separate. |
 | Unsupported canonical-name format | A record does not have a quoted first-field canonical name in the supported format. |
 | Generation succeeds but push fails | Check token permissions, branch rules, and whether the remote branch changed. |
 | New code keeps its English name | Check `new_codes_without_malay_name`. |
