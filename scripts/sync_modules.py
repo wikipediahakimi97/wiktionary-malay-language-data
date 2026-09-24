@@ -28,6 +28,7 @@ from localize_canonical_names import (
     aliases,
     apply_replacements,
     canonical_names,
+    shadowed_duplicate_records,
     string_value,
 )
 
@@ -367,6 +368,7 @@ def generate(old_dir, new_dir, output_dir, report_dir):
 
     changes = []
     alias_changes = []
+    duplicate_removals = []
     unmatched = []
     seen = {scope: set() for scope in SCOPES}
     output_names = {
@@ -384,6 +386,23 @@ def generate(old_dir, new_dir, output_dir, report_dir):
         replacements = []
         canonical_records = None
         expected_aliases = None
+
+        # Etymology-language and family data can contain repeated assignments
+        # for the same code. Lua keeps only the final assignment, so remove the
+        # earlier shadowed assignments from the localized output. Keep en-new
+        # untouched as the source snapshot.
+        if canonical_scope in ('etymology_languages', 'families'):
+            for duplicate in shadowed_duplicate_records(source):
+                replacements.append(
+                    (duplicate['start'], duplicate['end'], b'')
+                )
+                duplicate_removals.append(
+                    dict(
+                        dataset=canonical_scope,
+                        code=duplicate['code'].decode(),
+                        file=relative,
+                    )
+                )
 
         if canonical_scope is not None:
             policy = duplicate_policy_for_scope(canonical_scope)
@@ -444,6 +463,8 @@ def generate(old_dir, new_dir, output_dir, report_dir):
                 updated,
                 duplicate_policy=duplicate_policy_for_scope(canonical_scope),
             )
+            if canonical_scope in ('etymology_languages', 'families'):
+                assert not shadowed_duplicate_records(updated)
             assert list(after) == list(canonical_records)
             for code in canonical_records:
                 assert after[code][1] == old_names[canonical_scope].get(
@@ -481,8 +502,10 @@ def generate(old_dir, new_dir, output_dir, report_dir):
     report = dict(
         changed_count=len(changes),
         alias_collision_replacement_count=len(alias_changes),
+        shadowed_duplicate_removal_count=len(duplicate_removals),
         changes=changes,
         alias_collision_replacements=alias_changes,
+        shadowed_duplicate_removals=duplicate_removals,
         new_codes_without_malay_name=unmatched,
         old_codes_absent_from_english=old_absent,
         duplicate_canonical_names=duplicates,
@@ -508,12 +531,14 @@ def generate(old_dir, new_dir, output_dir, report_dir):
         f'- Language extras: **{alias_counts["languages"]}**\n'
         f'- Etymology-only languages: **{alias_counts["etymology_languages"]}**\n'
         f'- Families: **{alias_counts["families"]}**\n\n'
+        f'Shadowed duplicate assignments removed: **{len(duplicate_removals)}**\n\n'
         f'New codes retaining English canonical names: **{len(unmatched)}**\n\n'
         f'- Languages: **{unmatched_counts["languages"]}**\n'
         f'- Etymology-only languages: **{unmatched_counts["etymology_languages"]}**\n'
         f'- Families: **{unmatched_counts["families"]}**\n\n'
         'See changes.json for all canonical-name replacements, alias repairs, '
-        'unmatched codes, absent old codes, and duplicate canonical names.\n'
+        'removed shadowed duplicates, unmatched codes, absent old codes, and '
+        'duplicate canonical names.\n'
         'Input revision IDs and source links are in sources/*/manifest.json.\n'
     )
     (report_dir / 'summary.md').write_text(summary, encoding='utf-8')
