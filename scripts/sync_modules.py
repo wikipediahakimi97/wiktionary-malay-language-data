@@ -47,6 +47,17 @@ REQUIRED_MODULES = LANGUAGE_CORE_MODULES | set(EXACT_MODULES)
 SCOPES = ('languages', 'etymology_languages', 'families')
 
 
+def duplicate_policy_for_scope(scope):
+    """Choose how repeated m[code] assignments are interpreted.
+
+    Full-language data is split into well-defined core modules and remains
+    strict. Etymology-language and family data each live in a single large Lua
+    table; for those scopes, use the last assignment because that is the value
+    Lua leaves in the table at runtime.
+    """
+    return 'error' if scope == 'languages' else 'last'
+
+
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -288,7 +299,10 @@ def canonical_maps(directory):
         scope = scope_for_canonical_module(module)
         if scope is None:
             continue
-        for code, token in canonical_names(path.read_bytes()).items():
+        policy = duplicate_policy_for_scope(scope)
+        for code, token in canonical_names(
+            path.read_bytes(), duplicate_policy=policy
+        ).items():
             if code in names[scope]:
                 raise ValueError(
                     f'Duplicate {scope} code across modules: {code.decode()}'
@@ -307,7 +321,10 @@ def alias_expected_values(source, scope, old_names, new_names):
     replacements = []
     changes = []
 
-    for code, alias_tokens in aliases(source).items():
+    policy = duplicate_policy_for_scope(scope)
+    for code, alias_tokens in aliases(
+        source, duplicate_policy=policy
+    ).items():
         before_values = [string_value(token[1]) for token in alias_tokens]
         after_values = list(before_values)
         expected[code] = after_values
@@ -369,7 +386,10 @@ def generate(old_dir, new_dir, output_dir, report_dir):
         expected_aliases = None
 
         if canonical_scope is not None:
-            canonical_records = canonical_names(source)
+            policy = duplicate_policy_for_scope(canonical_scope)
+            canonical_records = canonical_names(
+                source, duplicate_policy=policy
+            )
             for code, (_, literal, start, end) in canonical_records.items():
                 if code in seen[canonical_scope]:
                     raise ValueError(
@@ -420,7 +440,10 @@ def generate(old_dir, new_dir, output_dir, report_dir):
         updated = apply_replacements(source, replacements)
 
         if canonical_scope is not None:
-            after = canonical_names(updated)
+            after = canonical_names(
+                updated,
+                duplicate_policy=duplicate_policy_for_scope(canonical_scope),
+            )
             assert list(after) == list(canonical_records)
             for code in canonical_records:
                 assert after[code][1] == old_names[canonical_scope].get(
@@ -429,7 +452,10 @@ def generate(old_dir, new_dir, output_dir, report_dir):
                 )
 
         if alias_scope is not None:
-            after_aliases = aliases(updated)
+            after_aliases = aliases(
+                updated,
+                duplicate_policy=duplicate_policy_for_scope(alias_scope),
+            )
             for code, expected_values in expected_aliases.items():
                 actual_values = [
                     string_value(token[1])
