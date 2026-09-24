@@ -206,8 +206,10 @@ Both snapshot folders contain `manifest.json` with source revision information.
 | --- | --- |
 | `changed_count` | Total canonical-name replacements. |
 | `alias_collision_replacement_count` | Total aliases replaced because they would collide with the new Malay canonical name. |
+| `shadowed_duplicate_removal_count` | Number of earlier duplicate assignments removed from localized etymology/family output. |
 | `changes` | Canonical-name changes, including data set and source files. |
 | `alias_collision_replacements` | Alias replacements, including data set, code, old alias and replacement alias. |
+| `shadowed_duplicate_removals` | Earlier duplicate assignments removed from localized output, including data set, code and file. |
 | `new_codes_without_malay_name` | Current English codes with no matching Malay baseline canonical name. |
 | `old_codes_absent_from_english` | Saved Malay codes no longer found in the corresponding current English data set. |
 | `duplicate_canonical_names` | Duplicate localized canonical names, reported separately for each data set. |
@@ -243,7 +245,11 @@ aliases = {"Name 1", "Name 2"},
 
 The workflow validates the resulting canonical names and alias replacements after editing.
 
-For the normal full-language definition modules, repeated `m["code"] = { ... }` assignments remain an error. For the single-file `etymology languages/data` and `families/data` data sets, repeated assignments use normal Lua table semantics: the **last assignment is the effective record**. Earlier duplicate assignments are left untouched, while localization and alias-collision repair apply to the final effective record.
+For the normal full-language definition modules, repeated `m["code"] = { ... }` assignments remain an error.
+
+For the single-file `etymology languages/data` and `families/data` data sets, repeated assignments use normal Lua table semantics: the **last assignment is the effective record**. In the generated `localized/` copy, every earlier shadowed assignment for that code is removed completely, leaving only the final effective record.
+
+The original downloaded `sources/en-new/` snapshot is **not** cleaned or rewritten, so it still preserves the exact English source used for the run.
 
 ## Re-running the workflow
 
@@ -253,10 +259,11 @@ The workflow:
 
 1. reuses the saved Malay baseline;
 2. downloads a fresh English snapshot;
-3. replaces matching canonical names in all three data sets;
-4. repairs newly created alias/canonical-name collisions;
-5. regenerates `localized/` and `reports/`;
-6. commits the result to the selected branch.
+3. removes shadowed earlier duplicate assignments from localized etymology/family modules;
+4. replaces matching canonical names in all three data sets;
+5. repairs newly created alias/canonical-name collisions;
+6. regenerates `localized/` and `reports/`;
+7. commits the result to the selected branch.
 
 Manual changes inside these generated folders may be overwritten:
 
