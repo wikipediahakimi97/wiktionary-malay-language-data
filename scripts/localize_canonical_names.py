@@ -63,8 +63,17 @@ def _code_from_token(token):
     return code
 
 
-def records(source):
-    """Return top-level m["code"] = { ... } record token ranges."""
+def records(source, duplicate_policy='error'):
+    """Return effective top-level m["code"] = { ... } record token ranges.
+
+    duplicate_policy='error' rejects repeated assignments.
+    duplicate_policy='last' follows Lua table-assignment semantics and keeps the
+    last assignment for a repeated code. This is useful for the single-file
+    etymology-language and family datasets, where historical/local copies can
+    contain repeated assignments.
+    """
+    if duplicate_policy not in ('error', 'last'):
+        raise ValueError('Unknown duplicate policy: ' + repr(duplicate_policy))
     items = list(tokens(source))
     found = {}
     i = 0
@@ -72,7 +81,7 @@ def records(source):
         if ([t[1] for t in items[i:i+2]] == [b'm', b'[']
                 and [t[1] for t in items[i+3:i+6]] == [b']', b'=', b'{']):
             code = _code_from_token(items[i+2])
-            if code in found:
+            if code in found and duplicate_policy == 'error':
                 raise ValueError('Duplicate code; resolve before running: ' + repr(code))
             depth = 1
             j = i + 6
@@ -91,9 +100,9 @@ def records(source):
     return items, found
 
 
-def canonical_names(source):
-    """Return code -> canonical-name token for records with a literal first field."""
-    items, found = records(source)
+def canonical_names(source, duplicate_policy='error'):
+    """Return code -> canonical-name token for effective records."""
+    items, found = records(source, duplicate_policy=duplicate_policy)
     result = {}
     for code, (_, opening, closing) in found.items():
         first = opening + 1
@@ -108,9 +117,9 @@ def canonical_names(source):
     return result
 
 
-def aliases(source):
-    """Return code -> list of literal alias tokens from top-level aliases tables."""
-    items, found = records(source)
+def aliases(source, duplicate_policy='error'):
+    """Return code -> literal alias tokens from effective records."""
+    items, found = records(source, duplicate_policy=duplicate_policy)
     result = {}
     for code, (_, opening, closing) in found.items():
         alias_tokens = []
