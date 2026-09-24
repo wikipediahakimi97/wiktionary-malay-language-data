@@ -1,0 +1,574 @@
+{
+  "wiki": "ms",
+  "before": "2026-09-24T06:09:19Z",
+  "pages": [
+    {
+      "title": "Modul:languages/data/2",
+      "module": "languages/data/2",
+      "file": "languages/data/2.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 374064,
+      "timestamp": "2026-09-16T03:32:18Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=374064"
+    },
+    {
+      "title": "Modul:languages/data/2/extra",
+      "module": "languages/data/2/extra",
+      "file": "languages/data/2/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373619,
+      "timestamp": "2026-09-12T20:09:31Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373619"
+    },
+    {
+      "title": "Modul:languages/data/3",
+      "module": "languages/data/3",
+      "file": "languages/data/3.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 172032,
+      "timestamp": "2024-06-03T03:00:04Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=172032"
+    },
+    {
+      "title": "Modul:languages/data/3/a",
+      "module": "languages/data/3/a",
+      "file": "languages/data/3/a.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373830,
+      "timestamp": "2026-09-15T02:46:28Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373830"
+    },
+    {
+      "title": "Modul:languages/data/3/a/extra",
+      "module": "languages/data/3/a/extra",
+      "file": "languages/data/3/a/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373620,
+      "timestamp": "2026-09-12T20:09:35Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373620"
+    },
+    {
+      "title": "Modul:languages/data/3/b",
+      "module": "languages/data/3/b",
+      "file": "languages/data/3/b.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373714,
+      "timestamp": "2026-09-13T09:53:38Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373714"
+    },
+    {
+      "title": "Modul:languages/data/3/b/extra",
+      "module": "languages/data/3/b/extra",
+      "file": "languages/data/3/b/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373720,
+      "timestamp": "2026-09-13T10:27:27Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373720"
+    },
+    {
+      "title": "Modul:languages/data/3/c",
+      "module": "languages/data/3/c",
+      "file": "languages/data/3/c.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373722,
+      "timestamp": "2026-09-13T10:35:20Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373722"
+    },
+    {
+      "title": "Modul:languages/data/3/c/extra",
+      "module": "languages/data/3/c/extra",
+      "file": "languages/data/3/c/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373742,
+      "timestamp": "2026-09-13T10:52:38Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373742"
+    },
+    {
+      "title": "Modul:languages/data/3/d",
+      "module": "languages/data/3/d",
+      "file": "languages/data/3/d.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373723,
+      "timestamp": "2026-09-13T10:42:30Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373723"
+    },
+    {
+      "title": "Modul:languages/data/3/d/extra",
+      "module": "languages/data/3/d/extra",
+      "file": "languages/data/3/d/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373743,
+      "timestamp": "2026-09-13T10:52:41Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373743"
+    },
+    {
+      "title": "Modul:languages/data/3/doc",
+      "module": "languages/data/3/doc",
+      "file": "languages/data/3/doc.txt",
+      "contentmodel": "wikitext",
+      "revision_id": 373713,
+      "timestamp": "2026-09-13T06:50:49Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373713"
+    },
+    {
+      "title": "Modul:languages/data/3/e",
+      "module": "languages/data/3/e",
+      "file": "languages/data/3/e.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373757,
+      "timestamp": "2026-09-13T10:58:41Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373757"
+    },
+    {
+      "title": "Modul:languages/data/3/e/extra",
+      "module": "languages/data/3/e/extra",
+      "file": "languages/data/3/e/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373621,
+      "timestamp": "2026-09-12T20:09:40Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373621"
+    },
+    {
+      "title": "Modul:languages/data/3/f",
+      "module": "languages/data/3/f",
+      "file": "languages/data/3/f.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373758,
+      "timestamp": "2026-09-13T10:59:22Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373758"
+    },
+    {
+      "title": "Modul:languages/data/3/f/extra",
+      "module": "languages/data/3/f/extra",
+      "file": "languages/data/3/f/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373622,
+      "timestamp": "2026-09-12T20:09:44Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373622"
+    },
+    {
+      "title": "Modul:languages/data/3/g",
+      "module": "languages/data/3/g",
+      "file": "languages/data/3/g.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373832,
+      "timestamp": "2026-09-15T02:57:54Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373832"
+    },
+    {
+      "title": "Modul:languages/data/3/g/extra",
+      "module": "languages/data/3/g/extra",
+      "file": "languages/data/3/g/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373767,
+      "timestamp": "2026-09-13T11:05:16Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373767"
+    },
+    {
+      "title": "Modul:languages/data/3/h",
+      "module": "languages/data/3/h",
+      "file": "languages/data/3/h.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 374115,
+      "timestamp": "2026-09-16T03:36:47Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=374115"
+    },
+    {
+      "title": "Modul:languages/data/3/h/extra",
+      "module": "languages/data/3/h/extra",
+      "file": "languages/data/3/h/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373744,
+      "timestamp": "2026-09-13T10:52:49Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373744"
+    },
+    {
+      "title": "Modul:languages/data/3/i",
+      "module": "languages/data/3/i",
+      "file": "languages/data/3/i.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373725,
+      "timestamp": "2026-09-13T10:43:48Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373725"
+    },
+    {
+      "title": "Modul:languages/data/3/i/extra",
+      "module": "languages/data/3/i/extra",
+      "file": "languages/data/3/i/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 173144,
+      "timestamp": "2024-06-11T17:08:04Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=173144"
+    },
+    {
+      "title": "Modul:languages/data/3/j",
+      "module": "languages/data/3/j",
+      "file": "languages/data/3/j.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373841,
+      "timestamp": "2026-09-15T03:13:22Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373841"
+    },
+    {
+      "title": "Modul:languages/data/3/j/extra",
+      "module": "languages/data/3/j/extra",
+      "file": "languages/data/3/j/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373860,
+      "timestamp": "2026-09-15T03:28:39Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373860"
+    },
+    {
+      "title": "Modul:languages/data/3/k",
+      "module": "languages/data/3/k",
+      "file": "languages/data/3/k.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375377,
+      "timestamp": "2026-09-22T05:35:12Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375377"
+    },
+    {
+      "title": "Modul:languages/data/3/k/extra",
+      "module": "languages/data/3/k/extra",
+      "file": "languages/data/3/k/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375378,
+      "timestamp": "2026-09-22T05:36:05Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375378"
+    },
+    {
+      "title": "Modul:languages/data/3/l",
+      "module": "languages/data/3/l",
+      "file": "languages/data/3/l.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373825,
+      "timestamp": "2026-09-15T02:40:14Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373825"
+    },
+    {
+      "title": "Modul:languages/data/3/l/extra",
+      "module": "languages/data/3/l/extra",
+      "file": "languages/data/3/l/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373747,
+      "timestamp": "2026-09-13T10:52:57Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373747"
+    },
+    {
+      "title": "Modul:languages/data/3/m",
+      "module": "languages/data/3/m",
+      "file": "languages/data/3/m.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375286,
+      "timestamp": "2026-09-16T06:26:52Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375286"
+    },
+    {
+      "title": "Modul:languages/data/3/m/extra",
+      "module": "languages/data/3/m/extra",
+      "file": "languages/data/3/m/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373721,
+      "timestamp": "2026-09-13T10:27:34Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373721"
+    },
+    {
+      "title": "Modul:languages/data/3/n",
+      "module": "languages/data/3/n",
+      "file": "languages/data/3/n.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373831,
+      "timestamp": "2026-09-15T02:49:36Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373831"
+    },
+    {
+      "title": "Modul:languages/data/3/n/extra",
+      "module": "languages/data/3/n/extra",
+      "file": "languages/data/3/n/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373625,
+      "timestamp": "2026-09-12T20:09:57Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373625"
+    },
+    {
+      "title": "Modul:languages/data/3/o",
+      "module": "languages/data/3/o",
+      "file": "languages/data/3/o.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373693,
+      "timestamp": "2026-09-13T05:03:46Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373693"
+    },
+    {
+      "title": "Modul:languages/data/3/o/extra",
+      "module": "languages/data/3/o/extra",
+      "file": "languages/data/3/o/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373708,
+      "timestamp": "2026-09-13T05:20:37Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373708"
+    },
+    {
+      "title": "Modul:languages/data/3/p",
+      "module": "languages/data/3/p",
+      "file": "languages/data/3/p.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373768,
+      "timestamp": "2026-09-13T11:17:44Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373768"
+    },
+    {
+      "title": "Modul:languages/data/3/p/extra",
+      "module": "languages/data/3/p/extra",
+      "file": "languages/data/3/p/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373709,
+      "timestamp": "2026-09-13T05:20:40Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373709"
+    },
+    {
+      "title": "Modul:languages/data/3/q",
+      "module": "languages/data/3/q",
+      "file": "languages/data/3/q.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373729,
+      "timestamp": "2026-09-13T10:46:47Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373729"
+    },
+    {
+      "title": "Modul:languages/data/3/q/extra",
+      "module": "languages/data/3/q/extra",
+      "file": "languages/data/3/q/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 144560,
+      "timestamp": "2023-08-29T11:57:38Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=144560"
+    },
+    {
+      "title": "Modul:languages/data/3/r",
+      "module": "languages/data/3/r",
+      "file": "languages/data/3/r.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373730,
+      "timestamp": "2026-09-13T10:47:45Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373730"
+    },
+    {
+      "title": "Modul:languages/data/3/r/extra",
+      "module": "languages/data/3/r/extra",
+      "file": "languages/data/3/r/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373748,
+      "timestamp": "2026-09-13T10:53:03Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373748"
+    },
+    {
+      "title": "Modul:languages/data/3/s",
+      "module": "languages/data/3/s",
+      "file": "languages/data/3/s.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373731,
+      "timestamp": "2026-09-13T10:48:26Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373731"
+    },
+    {
+      "title": "Modul:languages/data/3/s/extra",
+      "module": "languages/data/3/s/extra",
+      "file": "languages/data/3/s/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373749,
+      "timestamp": "2026-09-13T10:53:06Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373749"
+    },
+    {
+      "title": "Modul:languages/data/3/t",
+      "module": "languages/data/3/t",
+      "file": "languages/data/3/t.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375375,
+      "timestamp": "2026-09-22T05:33:45Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375375"
+    },
+    {
+      "title": "Modul:languages/data/3/t/extra",
+      "module": "languages/data/3/t/extra",
+      "file": "languages/data/3/t/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375379,
+      "timestamp": "2026-09-22T05:36:14Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375379"
+    },
+    {
+      "title": "Modul:languages/data/3/u",
+      "module": "languages/data/3/u",
+      "file": "languages/data/3/u.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373733,
+      "timestamp": "2026-09-13T10:49:46Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373733"
+    },
+    {
+      "title": "Modul:languages/data/3/u/extra",
+      "module": "languages/data/3/u/extra",
+      "file": "languages/data/3/u/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373751,
+      "timestamp": "2026-09-13T10:53:12Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373751"
+    },
+    {
+      "title": "Modul:languages/data/3/v",
+      "module": "languages/data/3/v",
+      "file": "languages/data/3/v.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373734,
+      "timestamp": "2026-09-13T10:50:18Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373734"
+    },
+    {
+      "title": "Modul:languages/data/3/v/extra",
+      "module": "languages/data/3/v/extra",
+      "file": "languages/data/3/v/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373752,
+      "timestamp": "2026-09-13T10:53:14Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373752"
+    },
+    {
+      "title": "Modul:languages/data/3/w",
+      "module": "languages/data/3/w",
+      "file": "languages/data/3/w.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373735,
+      "timestamp": "2026-09-13T10:50:52Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373735"
+    },
+    {
+      "title": "Modul:languages/data/3/w/extra",
+      "module": "languages/data/3/w/extra",
+      "file": "languages/data/3/w/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373753,
+      "timestamp": "2026-09-13T10:53:17Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373753"
+    },
+    {
+      "title": "Modul:languages/data/3/x",
+      "module": "languages/data/3/x",
+      "file": "languages/data/3/x.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 374076,
+      "timestamp": "2026-09-16T03:33:12Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=374076"
+    },
+    {
+      "title": "Modul:languages/data/3/x/extra",
+      "module": "languages/data/3/x/extra",
+      "file": "languages/data/3/x/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373710,
+      "timestamp": "2026-09-13T05:20:45Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373710"
+    },
+    {
+      "title": "Modul:languages/data/3/y",
+      "module": "languages/data/3/y",
+      "file": "languages/data/3/y.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373736,
+      "timestamp": "2026-09-13T10:51:31Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373736"
+    },
+    {
+      "title": "Modul:languages/data/3/y/extra",
+      "module": "languages/data/3/y/extra",
+      "file": "languages/data/3/y/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373754,
+      "timestamp": "2026-09-13T10:53:21Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373754"
+    },
+    {
+      "title": "Modul:languages/data/3/z",
+      "module": "languages/data/3/z",
+      "file": "languages/data/3/z.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373737,
+      "timestamp": "2026-09-13T10:52:05Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373737"
+    },
+    {
+      "title": "Modul:languages/data/3/z/extra",
+      "module": "languages/data/3/z/extra",
+      "file": "languages/data/3/z/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373755,
+      "timestamp": "2026-09-13T10:53:23Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373755"
+    },
+    {
+      "title": "Modul:languages/data/all",
+      "module": "languages/data/all",
+      "file": "languages/data/all.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 172050,
+      "timestamp": "2024-06-03T03:40:12Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=172050"
+    },
+    {
+      "title": "Modul:languages/data/all/additional",
+      "module": "languages/data/all/additional",
+      "file": "languages/data/all/additional.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 155732,
+      "timestamp": "2023-11-24T03:51:12Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=155732"
+    },
+    {
+      "title": "Modul:languages/data/exceptional",
+      "module": "languages/data/exceptional",
+      "file": "languages/data/exceptional.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375600,
+      "timestamp": "2026-09-24T02:42:55Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375600"
+    },
+    {
+      "title": "Modul:languages/data/exceptional/extra",
+      "module": "languages/data/exceptional/extra",
+      "file": "languages/data/exceptional/extra.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 375380,
+      "timestamp": "2026-09-22T05:36:21Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=375380"
+    },
+    {
+      "title": "Modul:languages/data/patterns",
+      "module": "languages/data/patterns",
+      "file": "languages/data/patterns.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 373495,
+      "timestamp": "2026-09-10T20:21:20Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=373495"
+    },
+    {
+      "title": "Modul:languages/data/sandbox",
+      "module": "languages/data/sandbox",
+      "file": "languages/data/sandbox.lua",
+      "contentmodel": "Scribunto",
+      "revision_id": 185019,
+      "timestamp": "2024-09-28T03:45:40Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=185019"
+    },
+    {
+      "title": "Modul:languages/data/wikidata.json",
+      "module": "languages/data/wikidata.json",
+      "file": "languages/data/wikidata.json.txt",
+      "contentmodel": "json",
+      "revision_id": 185018,
+      "timestamp": "2024-09-28T03:42:54Z",
+      "revision_url": "https://ms.wiktionary.org/w/index.php?oldid=185018"
+    }
+  ],
+  "omitted_no_revision": []
+}
