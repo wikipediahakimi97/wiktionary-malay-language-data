@@ -7,10 +7,10 @@ The workflow handles three independent data scopes:
 
 Canonical names come from a cleaned saved Malay baseline. Before localization,
 subsequent duplicate Malay code assignments are removed while the first is kept.
-If an English alias equals
-the Malay canonical name for the same code and scope, the alias is replaced by
-the original English canonical name so localization does not create a
-canonical-name/alias collision.
+English duplicates are preserved and reported as warnings; localization continues
+across every English occurrence. If an English alias equals the Malay canonical
+name for the same code and scope, the alias is replaced by the original English
+canonical name so localization does not create a canonical-name/alias collision.
 """
 import argparse
 import collections
@@ -27,9 +27,12 @@ import urllib.parse
 import urllib.request
 
 from localize_canonical_names import (
-    aliases,
+    alias_occurrence_details,
+    alias_occurrences,
     apply_replacements,
+    canonical_name_occurrences,
     canonical_names,
+    record_codes,
     subsequent_duplicate_records,
     string_value,
 )
@@ -284,16 +287,30 @@ def scope_for_alias_module(module):
     return None
 
 
-def canonical_maps(directory):
-    """Build separate duplicate-free canonical-name maps for each data set."""
+def canonical_maps(directory, allow_duplicates=False):
+    """Build separate canonical-name maps for each data set.
+
+    The cleaned Malay baseline must be duplicate-free. For English, duplicate
+    assignments are warning-only, so the first canonical occurrence becomes
+    the code-level reference value while every occurrence is still localized
+    later in :func:`generate`.
+    """
     names = {scope: {} for scope in SCOPES}
     origins = {scope: {} for scope in SCOPES}
     for module, relative, path in manifest_files(directory):
         scope = scope_for_canonical_module(module)
         if scope is None:
             continue
-        for code, token in canonical_names(path.read_bytes()).items():
+        source = path.read_bytes()
+        occurrences = (
+            canonical_name_occurrences(source)
+            if allow_duplicates
+            else list(canonical_names(source).items())
+        )
+        for code, token in occurrences:
             if code in names[scope]:
+                if allow_duplicates:
+                    continue
                 raise ValueError(
                     f'Duplicate {scope} code across modules: {code.decode()}'
                 )
@@ -376,65 +393,99 @@ def clean_malay_duplicates(directory):
     return removals
 
 
-def validate_english_duplicates(directory):
-    """Reject duplicate English assignments instead of deleting them."""
-    seen = collections.defaultdict(set)
+def collect_english_duplicate_warnings(directory):
+    """Report English duplicate assignments without deleting or rejecting them."""
+    first_seen = collections.defaultdict(dict)
+    warnings = []
     files = sorted(manifest_files(directory), key=lambda item: item[0])
+
     for module, relative, path in files:
         group = duplicate_group(module)
         if group is None:
             continue
-        duplicates = subsequent_duplicate_records(path.read_bytes(), seen[group])
-        if duplicates:
-            codes = ', '.join(item['code'].decode() for item in duplicates)
-            raise ValueError(
-                f'Unexpected duplicate English code(s) in {group}: '
-                f'{codes} (encountered in {relative})'
+        occurrence_number = collections.Counter()
+        for code in record_codes(path.read_bytes()):
+            occurrence_number[code] += 1
+            if code not in first_seen[group]:
+                first_seen[group][code] = dict(
+                    file=relative,
+                    occurrence=occurrence_number[code],
+                )
+                continue
+            item = dict(
+                dataset=group,
+                code=code.decode(),
+                first_file=first_seen[group][code]['file'],
+                duplicate_file=relative,
+                duplicate_occurrence=occurrence_number[code],
+            )
+            warnings.append(item)
+            print(
+                '::warning title=Duplicate English code::'
+                f'{group}: {code.decode()} first appears in '
+                f'{item["first_file"]}; repeated in {relative}',
+                flush=True,
             )
 
+    return warnings
+
+
 def alias_expected_values(source, scope, old_names, new_names):
-    """Return expected semantic alias values after collision replacement."""
-    expected = {}
+    """Return expected alias values for every record occurrence.
+
+    English duplicates are preserved, so expectations are kept as an ordered
+    list rather than a code-keyed dictionary. Every duplicate alias record is
+    processed instead of being silently collapsed.
+    """
+    expected = []
     replacements = []
     changes = []
 
-    for code, alias_tokens in aliases(source).items():
+    for code, record_canonical, alias_tokens in alias_occurrence_details(source):
         before_values = [string_value(token[1]) for token in alias_tokens]
         after_values = list(before_values)
-        expected[code] = after_values
 
-        if code not in old_names[scope] or code not in new_names[scope]:
-            continue
+        if code in old_names[scope] and code in new_names[scope]:
+            malay_literal = old_names[scope][code]
+            # Etymology/family aliases share a record with their canonical name.
+            # When English has duplicate records, use that occurrence's original
+            # canonical literal. Language /extra records fall back to the first
+            # English canonical occurrence selected for the code-level map.
+            english_literal = record_canonical[1] if record_canonical else new_names[scope][code]
+            malay_name = string_value(malay_literal)
+            english_name = string_value(english_literal)
 
-        malay_literal = old_names[scope][code]
-        english_literal = new_names[scope][code]
-        malay_name = string_value(malay_literal)
-        english_name = string_value(english_literal)
+            # Only repair collisions introduced by changing the canonical name.
+            if malay_name != english_name:
+                for index, token in enumerate(alias_tokens):
+                    if before_values[index] != malay_name:
+                        continue
+                    replacements.append((token[2], token[3], english_literal))
+                    after_values[index] = english_name
+                    changes.append(
+                        dict(
+                            dataset=scope,
+                            code=code.decode(),
+                            before=token[1].decode(),
+                            after=english_literal.decode(),
+                        )
+                    )
 
-        # Only repair collisions introduced by changing the canonical name.
-        if malay_name == english_name:
-            continue
-
-        for index, token in enumerate(alias_tokens):
-            if before_values[index] != malay_name:
-                continue
-            replacements.append((token[2], token[3], english_literal))
-            after_values[index] = english_name
-            changes.append(
-                dict(
-                    dataset=scope,
-                    code=code.decode(),
-                    before=token[1].decode(),
-                    after=english_literal.decode(),
-                )
-            )
+        expected.append((code, after_values))
 
     return expected, replacements, changes
 
 
-def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals):
+def generate(
+    old_dir,
+    new_dir,
+    output_dir,
+    report_dir,
+    malay_duplicate_removals,
+    english_duplicate_warnings,
+):
     old_names, old_origins = canonical_maps(old_dir)
-    new_names, _ = canonical_maps(new_dir)
+    new_names, _ = canonical_maps(new_dir, allow_duplicates=True)
 
     shutil.copytree(new_dir, output_dir)
     (output_dir / 'manifest.json').unlink()
@@ -460,29 +511,29 @@ def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals)
         expected_aliases = None
 
         if canonical_scope is not None:
-            canonical_records = canonical_names(source)
-            for code, (_, literal, start, end) in canonical_records.items():
-                if code in seen[canonical_scope]:
-                    raise ValueError(
-                        f'Duplicate English {canonical_scope} code across modules: '
-                        + code.decode()
-                    )
+            canonical_records = canonical_name_occurrences(source)
+            for code, token in canonical_records:
+                literal, start, end = token[1], token[2], token[3]
+                first_for_code = code not in seen[canonical_scope]
                 seen[canonical_scope].add(code)
                 replacement = old_names[canonical_scope].get(code, literal)
                 replacements.append((start, end, replacement))
-                output_names[canonical_scope][string_value(replacement)].append(
-                    code.decode()
-                )
-                if code not in old_names[canonical_scope]:
-                    unmatched.append(
-                        dict(
-                            dataset=canonical_scope,
-                            code=code.decode(),
-                            name=literal.decode(),
-                            file=relative,
-                        )
+
+                if first_for_code:
+                    output_names[canonical_scope][string_value(replacement)].append(
+                        code.decode()
                     )
-                elif replacement != literal:
+                    if code not in old_names[canonical_scope]:
+                        unmatched.append(
+                            dict(
+                                dataset=canonical_scope,
+                                code=code.decode(),
+                                name=literal.decode(),
+                                file=relative,
+                            )
+                        )
+
+                if code in old_names[canonical_scope] and replacement != literal:
                     changes.append(
                         dict(
                             dataset=canonical_scope,
@@ -511,21 +562,29 @@ def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals)
         updated = apply_replacements(source, replacements)
 
         if canonical_scope is not None:
-            after = canonical_names(updated)
-            assert list(after) == list(canonical_records)
-            for code in canonical_records:
-                assert after[code][1] == old_names[canonical_scope].get(
+            after = canonical_name_occurrences(updated)
+            assert [code for code, _token in after] == [
+                code for code, _token in canonical_records
+            ]
+            for (code, before_token), (after_code, after_token) in zip(
+                canonical_records, after
+            ):
+                assert code == after_code
+                assert after_token[1] == old_names[canonical_scope].get(
                     code,
-                    canonical_records[code][1],
+                    before_token[1],
                 )
 
         if alias_scope is not None:
-            after_aliases = aliases(updated)
-            for code, expected_values in expected_aliases.items():
-                actual_values = [
-                    string_value(token[1])
-                    for token in after_aliases.get(code, [])
-                ]
+            after_aliases = alias_occurrences(updated)
+            assert [code for code, _tokens in after_aliases] == [
+                code for code, _values in expected_aliases
+            ]
+            for (code, alias_tokens), (expected_code, expected_values) in zip(
+                after_aliases, expected_aliases
+            ):
+                assert code == expected_code
+                actual_values = [string_value(token[1]) for token in alias_tokens]
                 assert actual_values == expected_values
 
         (output_dir / relative).write_bytes(updated)
@@ -547,9 +606,11 @@ def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals)
         changed_count=len(changes),
         alias_collision_replacement_count=len(alias_changes),
         malay_duplicate_removal_count=len(malay_duplicate_removals),
+        english_duplicate_warning_count=len(english_duplicate_warnings),
         changes=changes,
         alias_collision_replacements=alias_changes,
         malay_duplicate_removals=malay_duplicate_removals,
+        english_duplicate_warnings=english_duplicate_warnings,
         new_codes_without_malay_name=unmatched,
         old_codes_absent_from_english=old_absent,
         duplicate_canonical_names=duplicates,
@@ -565,6 +626,15 @@ def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals)
     unmatched_counts = collections.Counter(
         item['dataset'] for item in unmatched
     )
+    if english_duplicate_warnings:
+        english_warning_details = '\n## English duplicate warnings\n\n' + ''.join(
+            f'- `{item["dataset"]}`: `{item["code"]}` — first in '
+            f'`{item["first_file"]}`, repeated in `{item["duplicate_file"]}`\n'
+            for item in english_duplicate_warnings
+        ) + '\n'
+    else:
+        english_warning_details = ''
+
     summary = (
         '# Canonical-name transfer\n\n'
         f'Canonical names changed: **{len(changes)}**\n\n'
@@ -576,14 +646,16 @@ def generate(old_dir, new_dir, output_dir, report_dir, malay_duplicate_removals)
         f'- Etymology-only languages: **{alias_counts["etymology_languages"]}**\n'
         f'- Families: **{alias_counts["families"]}**\n\n'
         f'Malay duplicate assignments removed: **{len(malay_duplicate_removals)}**\n\n'
+        f'English duplicate warnings: **{len(english_duplicate_warnings)}**\n\n'
         f'New codes retaining English canonical names: **{len(unmatched)}**\n\n'
         f'- Languages: **{unmatched_counts["languages"]}**\n'
         f'- Etymology-only languages: **{unmatched_counts["etymology_languages"]}**\n'
         f'- Families: **{unmatched_counts["families"]}**\n\n'
         'See changes.json for all canonical-name replacements, alias repairs, '
-        'removed Malay duplicates, unmatched codes, absent old codes, and '
-        'duplicate canonical names.\n'
+        'removed Malay duplicates, English duplicate warnings, unmatched codes, '
+        'absent old codes, and duplicate canonical names.\n'
         'Input revision IDs and source links are in sources/*/manifest.json.\n'
+        + english_warning_details
     )
     (report_dir / 'summary.md').write_text(summary, encoding='utf-8')
     print(summary)
@@ -642,9 +714,10 @@ def main():
 
         # Preprocess only the staged Malay baseline: keep the first assignment
         # for each code and delete every subsequent duplicate. English duplicate
-        # assignments are treated as errors and are never silently deleted.
+        # assignments are preserved and reported as warnings; localization then
+        # continues across every English occurrence.
         malay_duplicate_removals = clean_malay_duplicates(old)
-        validate_english_duplicates(new)
+        english_duplicate_warnings = collect_english_duplicate_warnings(new)
 
         generate(
             old,
@@ -652,6 +725,7 @@ def main():
             staging / 'localized',
             staging / 'reports',
             malay_duplicate_removals,
+            english_duplicate_warnings,
         )
 
         # Publish the cleaned Malay baseline only after the entire run succeeds.
