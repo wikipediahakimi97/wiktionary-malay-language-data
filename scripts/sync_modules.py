@@ -465,7 +465,11 @@ def generate(old_dir, new_dir, output_dir, report_dir):
             )
             if canonical_scope in ('etymology_languages', 'families'):
                 assert not shadowed_duplicate_records(updated)
-            assert list(after) == list(canonical_records)
+            # Compare code membership, not dictionary insertion order.
+            # Pruning an earlier shadowed duplicate moves the effective record to
+            # its real final position in the file, which can legitimately change
+            # parser insertion order without changing the set of effective codes.
+            assert set(after) == set(canonical_records)
             for code in canonical_records:
                 assert after[code][1] == old_names[canonical_scope].get(
                     code,
