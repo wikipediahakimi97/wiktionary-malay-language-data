@@ -243,6 +243,8 @@ aliases = {"Name 1", "Name 2"},
 
 The workflow validates the resulting canonical names and alias replacements after editing.
 
+For the normal full-language definition modules, repeated `m["code"] = { ... }` assignments remain an error. For the single-file `etymology languages/data` and `families/data` data sets, repeated assignments use normal Lua table semantics: the **last assignment is the effective record**. Earlier duplicate assignments are left untouched, while localization and alias-collision repair apply to the final effective record.
+
 ## Re-running the workflow
 
 For a normal refresh, leave `ms_before` blank.
@@ -339,7 +341,7 @@ This repository does not automatically edit Wiktionary or regenerate on-wiki ind
 | Baseline is missing the new data sets | The updated script should backfill them at the baseline's stored cutoff automatically. |
 | Backfill has no eligible historical revision | The required module did not have a revision at or before the stored cutoff; investigate the appropriate historical baseline. |
 | Incomplete canonical data snapshot | A required definition module is missing or has no eligible revision. |
-| Duplicate-code error | Inspect duplicates within the named data set. Codes are allowed to overlap between different data sets. |
+| Duplicate-code error | Duplicate codes still stop the normal full-language definition modules. Etymology-language and family data use the final repeated assignment; codes may also overlap between different data sets. |
 | Unsupported canonical-name format | A record does not have a quoted first-field canonical name in the supported format. |
 | Generation succeeds but push fails | Check token permissions, branch rules, and whether the remote branch changed. |
 | New code keeps its English name | Check `new_codes_without_malay_name`. |
