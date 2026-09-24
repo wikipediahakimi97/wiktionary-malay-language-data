@@ -63,26 +63,20 @@ def _code_from_token(token):
     return code
 
 
-def records(source, duplicate_policy='error'):
-    """Return effective top-level m["code"] = { ... } record token ranges.
+def _record_occurrences(source):
+    """Return tokens and every top-level m["code"] = { ... } assignment.
 
-    duplicate_policy='error' rejects repeated assignments.
-    duplicate_policy='last' follows Lua table-assignment semantics and keeps the
-    last assignment for a repeated code. This is useful for the single-file
-    etymology-language and family datasets, where historical/local copies can
-    contain repeated assignments.
+    Each occurrence is returned as ``(code, start_index, opening_index,
+    closing_index)``. Keeping all occurrences lets callers distinguish the
+    effective final assignment from earlier assignments shadowed by Lua.
     """
-    if duplicate_policy not in ('error', 'last'):
-        raise ValueError('Unknown duplicate policy: ' + repr(duplicate_policy))
     items = list(tokens(source))
-    found = {}
+    occurrences = []
     i = 0
     while i <= len(items) - 6:
         if ([t[1] for t in items[i:i+2]] == [b'm', b'[']
                 and [t[1] for t in items[i+3:i+6]] == [b']', b'=', b'{']):
             code = _code_from_token(items[i+2])
-            if code in found and duplicate_policy == 'error':
-                raise ValueError('Duplicate code; resolve before running: ' + repr(code))
             depth = 1
             j = i + 6
             while j < len(items) and depth:
@@ -93,11 +87,66 @@ def records(source, duplicate_policy='error'):
                 j += 1
             if depth:
                 raise ValueError('Unclosed data record: ' + repr(code))
-            found[code] = (i, i + 5, j - 1)
+            occurrences.append((code, i, i + 5, j - 1))
             i = j
             continue
         i += 1
+    return items, occurrences
+
+
+def records(source, duplicate_policy='error'):
+    """Return effective top-level m["code"] = { ... } record token ranges.
+
+    duplicate_policy='error' rejects repeated assignments.
+    duplicate_policy='last' follows Lua table-assignment semantics and keeps the
+    last assignment for a repeated code.
+    """
+    if duplicate_policy not in ('error', 'last'):
+        raise ValueError('Unknown duplicate policy: ' + repr(duplicate_policy))
+    items, occurrences = _record_occurrences(source)
+    found = {}
+    for code, start, opening, closing in occurrences:
+        if code in found and duplicate_policy == 'error':
+            raise ValueError('Duplicate code; resolve before running: ' + repr(code))
+        found[code] = (start, opening, closing)
     return items, found
+
+
+def shadowed_duplicate_records(source):
+    """Return earlier duplicate assignments shadowed by a later assignment.
+
+    The returned byte ranges cover the complete earlier ``m["code"] = { ... }``
+    assignment and, when safe, its trailing semicolon/whitespace and line break.
+    The final assignment for each code is never returned.
+    """
+    items, occurrences = _record_occurrences(source)
+    positions = {}
+    for index, (code, *_rest) in enumerate(occurrences):
+        positions.setdefault(code, []).append(index)
+
+    shadowed = []
+    for code, indexes in positions.items():
+        for occurrence_index in indexes[:-1]:
+            _code, start_index, _opening, closing_index = occurrences[occurrence_index]
+            start = items[start_index][2]
+            end = items[closing_index][3]
+
+            # Include an optional semicolon, horizontal whitespace and one line
+            # break so removing the shadowed assignment does not leave a blank
+            # line made solely by that record. Do not consume an inline comment.
+            if source[end:end + 1] == b';':
+                end += 1
+            while source[end:end + 1] in (b' ', b'\t'):
+                end += 1
+            if source[end:end + 2] == b'\r\n':
+                end += 2
+            elif source[end:end + 1] in (b'\n', b'\r'):
+                end += 1
+
+            shadowed.append(
+                dict(code=code, start=start, end=end)
+            )
+    return shadowed
 
 
 def canonical_names(source, duplicate_policy='error'):
